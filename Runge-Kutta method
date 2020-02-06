@@ -1,0 +1,103 @@
+// ДУ.cpp: определяет точку входа для консольного приложения.
+//
+
+#include "stdafx.h"
+#include <stdio.h>
+#include <conio.h>
+#include <math.h>
+#include <fstream>
+
+const int iter = 15000;
+const double m = 5, M = 132, r = 0.1, R = 0.3, f0 = 20, omega = 125, c = 156250, n = 3158.2,g=9.8,I=0.45;
+
+double f1(double y1, double y2,double fi1,double fi2, double t)
+{
+	return y2;
+}
+double f2(double y1, double y2, double fi1, double fi2, double t)
+{
+	//return -2*y1 - 4 * fi1; 
+	return c*r / m*sin(fi1) + g - 2 * n*y2 - omega*omega*y1;
+}
+double f3(double y1, double y2, double fi1, double fi2, double t)
+{
+	return fi2; 
+}
+double f4(double y1, double y2, double fi1, double fi2, double t)
+{
+	//return y1-7*fi1; 
+	return M*g*R / (I + M*R*R) + (c*(y1 - r*sin(fi1))*r*cos(fi1)) / (I + M*R*R);
+}
+
+int main()
+{
+	FILE *myfile;
+	double a = 0;
+	double b = 5, h;
+	double t, k11, k12,k13,k14, k21, k22,k23,k24, k31, k32,k33,k34, k41, k42,k43,k44;
+	h = (b - a) / iter;
+	double y1[iter + 1], y2[iter + 1],fi1[iter+1],fi2[iter+1],q[iter+1];
+	y1[0] = 0;//начальные условия
+	y2[0] = 0;
+	fi1[0] = 0;
+	fi2[0] = 0;
+	printf("t              y1              y2             fi1                 fi2\n");
+	for (int k = 0; k <= iter; k++)
+	{
+		t = a + k*h;
+		k11 = h*f1(y1[k],y2[k],fi1[k], fi2[k],t);
+		k12 = h*f2(y1[k], y2[k], fi1[k], fi2[k], t);
+		k13 = h*f3(y1[k], y2[k], fi1[k], fi2[k], t);
+		k14 = h*f4(y1[k], y2[k], fi1[k], fi2[k], t);
+		k21 = h*f1(y1[k]+k11/2, y2[k]+k12/2, fi1[k]+k13/2, fi2[k]+k14/2, t+h/2);
+		k22 = h*f2(y1[k] + k11 / 2, y2[k] + k12 / 2, fi1[k] + k13 / 2, fi2[k] + k14 / 2, t + h / 2);
+		k23 = h*f3(y1[k] + k11 / 2, y2[k] + k12 / 2, fi1[k] + k13 / 2, fi2[k] + k14 / 2, t + h / 2);
+		k24 = h*f4(y1[k] + k11 / 2, y2[k] + k12 / 2, fi1[k] + k13 / 2, fi2[k] + k14 / 2, t + h / 2);
+		k31 = h*f1(y1[k] + k21 / 2, y2[k] + k22 / 2, fi1[k] + k23 / 2, fi2[k] + k24 / 2, t + h / 2);
+		k32 = h*f2(y1[k] + k21 / 2, y2[k] + k22 / 2, fi1[k] + k23 / 2, fi2[k] + k24 / 2, t + h / 2);
+		k33 = h*f3(y1[k] + k21 / 2, y2[k] + k22 / 2, fi1[k] + k23 / 2, fi2[k] + k24 / 2, t + h / 2);
+		k34 = h*f4(y1[k] + k21 / 2, y2[k] + k22 / 2, fi1[k] + k23 / 2, fi2[k] + k24 / 2, t + h / 2);
+		k41 = h*f1(y1[k] + k31 , y2[k] + k32 , fi1[k] + k33 , fi2[k] + k34 , t + h);
+		k42 = h*f2(y1[k] + k31 , y2[k] + k32 , fi1[k] + k33 , fi2[k] + k34 , t + h);
+		k43 = h*f3(y1[k] + k31 , y2[k] + k32 , fi1[k] + k33 , fi2[k] + k34 , t + h);
+		k44 = h*f4(y1[k] + k31 , y2[k] + k32 , fi1[k] + k33 , fi2[k] + k34 , t + h);
+		y1[k + 1] = y1[k] + (k11 + 2 * k21 + 2 * k31 + k41) / 6;
+		y2[k + 1] = y2[k] + (k12 + 2 * k22 + 2 * k32 + k42) / 6;
+		//printf("%f %f %f %f %f\n", (k12 + 2 * k22 + 2 * k32 + k42) / 6,k12,k22,k32,k42);
+		fi1[k + 1] = fi1[k] + (k13 + 2 * k23 + 2 * k33 + k43) / 6;
+		fi2[k + 1] = fi2[k] + (k14 + 2 * k24 + 2 * k34 + k44) / 6;
+		q[k] = t;
+		printf("%f       %f        %f         %f           %f\n", t, y1[k], y2[k], fi1[k], fi2[k]);
+		//printf("%f       %f       \n", t, fi1[k]);
+	}
+	myfile=fopen("t.txt", "w");
+	for (int k = 0; k <= iter; k++)
+	{
+		fprintf(myfile, "%f\n", q[k]);
+	}
+	fclose(myfile);
+
+	myfile = fopen("y1.txt", "w");
+	for (int k = 0; k <= iter; k++)
+	{
+		fprintf(myfile, "%f\n", y1[k]);
+	}
+	fclose(myfile);
+
+	myfile = fopen("fi1.txt", "w");
+	for (int k = 0; k <= iter; k++)
+	{
+		fprintf(myfile, "%f\n", fi1[k]);
+	}
+	fclose(myfile);
+
+	myfile = fopen("fi2.txt", "w");
+	for (int k = 0; k <= iter; k++)
+	{
+		fprintf(myfile, "%f\n", fi2[k]);
+	}
+	fclose(myfile);
+	_getch();
+	return 0;
+}
+
