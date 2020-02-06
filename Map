@@ -1,0 +1,40 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct StudentGrade
+{
+	string m_name;
+	char m_grade;
+};
+
+class GradeMap
+{
+private:
+	vector<StudentGrade> m_map;
+public:
+	GradeMap() {}
+	char& operator[](const string index)
+	{
+		for (auto x : m_map)
+		{
+			if (x.m_name == index)
+				return x.m_grade;
+		}
+		StudentGrade temp { index, '0' };
+		m_map.push_back(temp);
+		return m_map.back().m_grade;
+	}
+
+};
+
+int main()
+{
+	GradeMap grades;
+	grades["John"] = 'A';
+	grades["Martin"] = 'B';
+	cout << "John has a grade of " << grades["John"] << endl;
+	cout << "Martin has a grade of " << grades["Martin"] << endl;
+	system("pause>nul");
+	return 0;
+}
