@@ -1,0 +1,203 @@
+
+#include <iostream>
+#include <array>
+#include <ctime>
+#include <cassert>
+using namespace std;
+enum BlackJackResult { Player_win, Diler_win, Nichya };
+
+class Card
+{
+public:
+	enum CardSuit { two, three, four, five, six, seven, eight, nine, ten, Jack, Queen, King, Ace, Max_Suit };
+	enum CardRank { Tref, Buben, Cherv, Pika, Max_Rank };
+private:
+	CardSuit m_suit;
+	CardRank m_rank;
+public:
+	Card(CardSuit suit = Max_Suit, CardRank rank = Max_Rank) :m_suit(suit), m_rank(rank) {}
+
+	void printCard() const
+	{
+		switch (m_suit)
+		{
+		case 0:cout << "Two "; break;
+		case 1:cout << "Three "; break;
+		case 2:cout << "Four "; break;
+		case 3:cout << "Five "; break;
+		case 4:cout << "Six "; break;
+		case 5:cout << "Seven "; break;
+		case 6:cout << "Eight "; break;
+		case 7:cout << "Nine "; break;
+		case 8:cout << "Ten "; break;
+		case 9:cout << "Jack "; break;
+		case 10:cout << "Queen "; break;
+		case 11:cout << "King "; break;
+		case 12:cout << "Ace "; break;
+		}
+		switch (m_rank)
+		{
+		case 0:cout << "Tref\n"; break;
+		case 1:cout << "Buben\n"; break;
+		case 2:cout << "Cherv\n"; break;
+		case 3:cout << "Pika\n"; break;
+		}
+	}
+
+	int getCardValue(const int p) const
+	{
+		switch (m_suit)
+		{
+		case two:return 2; break;
+		case three:return 3; break;
+		case four:return 4; break;
+		case five:return 5; break;
+		case six:return 6; break;
+		case seven:return 7; break;
+		case eight:return 8; break;
+		case nine:return 9; break;
+		case ten:return 10; break;
+		case Jack:return 10; break;
+		case Queen:return 10; break;
+		case King:return 10; break;
+		case Ace:
+		{
+			if (p + 11 > 21)
+				return 1;
+			else
+				return 11;
+		}
+		}
+		return 0;
+	}
+};
+
+class Deck 
+{
+private:
+	array<Card, 52>m_deck;
+	int m_cardIndex = 0;
+
+	static void swapCard(Card& A, Card& B)
+	{
+		Card tmp;
+		tmp = A;
+		A = B;
+		B = tmp;
+	}
+	static int getRandomNumber(int64_t min, int64_t max)
+	{
+		static const double fraction = 1.0 / (static_cast<double>(RAND_MAX) + 1.0);
+		return static_cast<int>(rand() * fraction * (max - min + 1) + min);
+	}
+public:
+	Deck()
+	{
+		int card = 0;
+		for (int suit = 0; suit < Card::Max_Suit; suit++)
+		{
+			for (int rank = 0; rank < Card::Max_Rank; rank++)
+			{
+				m_deck[card] = Card(static_cast<Card::CardSuit>(suit), static_cast<Card::CardRank>(rank));
+				card++;
+			}
+		}
+	}
+	void printDeck() const
+	{
+		for (const auto& x : m_deck)
+		{
+			x.printCard();
+		}
+	}
+
+	void shuffleDeck() 
+	{
+	
+		for (int i = 0; i < 52; i++)
+		{
+			swapCard(m_deck[i], m_deck[getRandomNumber(0,51)]);
+		}
+		m_cardIndex = 0;
+	}
+
+	const Card& dealCard()
+	{
+		assert(m_cardIndex < 52);
+		return m_deck[m_cardIndex++];
+	}
+
+	BlackJackResult playBlackJack()
+	{
+		int Player = 0, Diler = 0;
+		string ch;
+		Diler = dealCard().getCardValue(Diler);
+		Player = dealCard().getCardValue(Player) + dealCard().getCardValue(Player);
+		cout << "Diler's score: " << Diler << endl;
+		cout << "Your score: " << Player << endl;
+		if (Player == 21)
+		{
+			return Player_win;
+		}
+		//Ход игрока:
+		do
+		{
+			cout << "Hit or stand?\n";
+			cin >> ch;
+			if (ch == "hit" || ch == "Hit" || ch == "HIT")
+			{
+				Player += dealCard().getCardValue(Player);
+			}
+			else if (ch == "stand" || ch == "Stand" || ch == "STAND")
+				break;
+			cout << "Your score: " << Player << endl;
+		} while (Player < 21);
+		//Ход дилера:
+		do
+		{
+			Diler += dealCard().getCardValue(Diler);
+		} while (Diler < 17);
+		cout << "Diler's score: " << Diler << endl;
+		if (Player == 21 || Diler > 21 || (Player > Diler && Player < 21))
+		{
+			return Player_win;
+		}
+		else if (Player > 21 || (Diler > Player && Diler <= 21 && Player < 21))
+		{
+			return Diler_win;
+		}
+		else if (Player == Diler)
+		{
+			return Nichya;
+		}
+	}
+
+};
+
+
+
+int main()
+{
+	system("chcp 1251>nul");
+	srand(static_cast<unsigned int>(time(0)));
+	rand();
+	Deck deck;
+	//deck.printDeck();
+	char PlayAgain;
+	do
+	{
+		deck.shuffleDeck();
+		BlackJackResult WL = deck.playBlackJack();
+		if (WL == 0)
+			cout << "You win!\n";
+		else if (WL == 1)
+			cout << "You lose!\n";
+		else if (WL == 2)
+			cout << "Ничья!\n";
+		cout << "Play again? Y or N: ";
+		cin >> PlayAgain;
+	} while (PlayAgain != 'N' && PlayAgain != 'n');
+	cout << "Спасибо за игру!";
+	system("pause>nul");
+	return 0;
+}
