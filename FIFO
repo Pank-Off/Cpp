@@ -1,0 +1,92 @@
+
+#include <iostream>
+using namespace std;
+const int MAX = 5;
+
+template<class T>
+class Queue
+{
+private:
+	int top, tail;
+	T m[MAX];
+public:
+	class ExceptionEmpty
+	{};
+	class ExceptionFull
+	{};
+	Queue() :top(0), tail(0) {}
+	T pop()
+	{
+		if (tail <= 0)
+			throw ExceptionEmpty();
+		T temp = m[0];
+		for (int i = 0; i < tail; i++)
+			m[i] = m[i + 1];
+		tail--;
+		return temp;
+	}
+	void push(T a)
+	{
+		if (tail >= MAX)
+			throw ExceptionFull();
+		m[tail++] = a;
+	}
+	
+	void print()
+	{
+		for (int i = top; i < tail; i++)
+			cout << m[i] << " ";
+		cout << endl;
+	}
+};
+int main()
+{
+	system("chcp 1251>nul");
+	try
+	{
+		Queue<int> Q;
+		//Q.pop();
+		Q.push(1);
+		Q.push(2);
+		Q.pop();
+		Q.push(3);
+		Q.push(4);
+		Q.pop();
+		Q.print();
+		Q.push(59);
+		Q.push(65);
+		Q.push(643);
+		Q.pop();
+		Q.push(88);
+		Q.print();
+		Q.pop();
+		Q.pop();
+		Q.pop();
+		Q.print();
+		Q.push(1235);
+		Q.push(125);
+		Q.push(35);
+		//Q.push(5);
+		Queue<double> D;
+		
+		D.push(2.3);
+		D.push(3.4);
+		D.push(6.4);
+		D.push(4.6);
+		D.print();
+		
+		D.pop();
+		D.pop();
+		D.print();
+	}
+	catch (Queue<int>::ExceptionFull)
+	{
+		cout << "Превышение размера очереди\n";
+	}
+	catch (Queue<int>::ExceptionEmpty)
+	{
+		cout << "Удаление данных из пустой очереди\n";
+	}
+	system("pause>nul");
+	return 0;
+}
