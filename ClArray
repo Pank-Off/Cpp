@@ -1,0 +1,67 @@
+#include <iostream>
+using namespace std;
+
+class Array
+{
+private:
+	int* ptr;
+	int size;
+public:
+	Array() :size(0) {}
+	Array(int s)
+	{
+		size = s;
+		ptr = new int[s];
+	}
+	Array(Array& s)
+	{
+		size = s.size;
+		ptr = new int[s.size];
+		for (int j = 0; j < s.size; j++)
+		{
+			*(ptr + j) = *(s.ptr+j);
+		}
+	}
+	~Array()
+	{
+		delete[] ptr;
+	}
+	int& operator[](int j)
+	{
+		return *(ptr + j);
+	}
+	Array& operator=(Array& s)
+	{
+		size = s.size;
+		ptr = new int[s.size];
+		for (int j = 0; j < s.size; j++)
+		{
+			*(ptr + j) = *(s.ptr + j);
+		}
+		return *this;
+	}
+
+};
+int main()
+{
+	system("chcp 1251>nul");
+	const int ASIZE = 10;
+	Array arr1(ASIZE);
+	for (int j = 0; j < ASIZE; j++)
+		arr1[j] = j * j;
+	for (int j = 0; j < ASIZE; j++)
+		cout << arr1[j] << " ";
+	cout << endl;
+	cout << "Запущен конструктор копирования\n";
+	Array arr2(arr1);
+	for (int j = 0; j < ASIZE; j++)
+		cout << arr2[j] << " ";
+	cout << endl;
+	Array arr3;
+	cout << "Запущена операция присваивания\n";
+	arr3 = arr1;
+	for (int j = 0; j < ASIZE; j++)
+		cout << arr3[j] << " ";
+	system("pause>nul");
+	return 0;
+}
