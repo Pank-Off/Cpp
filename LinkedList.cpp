@@ -29,17 +29,18 @@ public:
 			current = tmp->next;
 			delete tmp;
 		}
-		system("pause>nul");
+		cout << endl;
 	}
 
 	void additem(int d); // добавление элемента
 	void display();       // показ данных
+	linklist& operator=(linklist& L);
 };
 ///////////////////////////////////////////////////////////
 void linklist::additem(int d) // добавление элемента
 {
 	link* newlink = new link;
-	if (!first)
+	if (!first) //если элемент первый
 	{
 		newlink->data = d;
 		newlink->next = NULL;
@@ -71,16 +72,43 @@ void linklist::display()
 		cout << current->data << endl;
 		current = current->next;
 	}
+	cout << endl;
+}
+///////////////////////////////////////////////////////////
+linklist& linklist::operator=(linklist& L)
+{
+	link* oldlink = L.first;
+	first = new link;
+	link* current = first;
+	while (true) {
+		link* nextlink = new link;
+		current->data = oldlink->data;
+		if (oldlink->next) {
+			current->next = nextlink;
+			current = current->next; 
+			oldlink = oldlink->next;
+			continue;
+		}
+		current->next = NULL; break;
+	}
+	return *this;
 }
 ///////////////////////////////////////////////////////////
 int main()
 {
-	linklist li;       // создаем переменную-список
+	linklist li, li2;       // создаем переменную-список
 
 	li.additem(25); // добавляем туда несколько чисел
 	li.additem(36);
 	li.additem(49);
 	li.additem(64);
 	li.display();    // показываем список
+	li2 = li;
+	li2.display();
+	li.~linklist();
+	li2.display();
+	system("pause>nul");
 	return 0;
 }
+
+
